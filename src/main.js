@@ -51,7 +51,7 @@
   const CLAW_TIME = 10;
 
   // Sprite size
-  const SPRITE_SIZE = 32;
+  const SPRITE_SIZE = 56;
 
   class Neko {
     constructor(options = {}) {
