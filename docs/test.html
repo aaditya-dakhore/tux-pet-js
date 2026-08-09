@@ -10,9 +10,12 @@
   <script src="neko.js"></script>
 
   <script>
-    createNeko({
-      awakeTime: 1,
-      awakeRandomRange: 3
+    window.addEventListener("DOMContentLoaded", () => {
+      const neko = createNeko({
+        mascot: "gnu",
+        awakeTime: 1,
+        awakeRandomRange: 3
+      });
     });
   </script>
 </body>

@@ -1,46 +1,73 @@
 #!/usr/bin/env python3
 """
-Build script for Neko.js
-Loads numbered PNG sprites and bundles with JavaScript
+Build script for Neko.js - multi-mascot edition
+Loads numbered PNG sprites per mascot and bundles with JavaScript
 """
 
 import base64
 from pathlib import Path
 
+# Register each mascot here. spriteSize = the ACTUAL pixel dimensions
+# of that mascot's PNGs (check yours before setting this).
+MASCOTS = {
+    "tux": {
+        "name": "Tux",
+        "folder": "tux",
+        "spriteSize": 56,
+        "credit": "Tux by Larry Ewing, sprites generated with PixelLab",
+    },
+    "gnu": {
+        "name": "GNU",
+        "folder": "gnu",
+        "spriteSize": 56,  # <-- confirm this matches your actual GNU PNG size before running
+        "credit": "GNU mascot (FSF/GNU Project), sprites generated with PixelLab",
+    },
+}
+
 
 def convert_png_to_base64(png_path):
-    """Read a PNG file and return it as a base64 data URI."""
     with open(png_path, "rb") as f:
         png_data = f.read()
     b64_data = base64.b64encode(png_data).decode("ascii")
     return f"data:image/png;base64,{b64_data}"
 
 
+def load_mascot_sprites(assets_dir, folder):
+    sprites = []
+    for i in range(32):
+        sprite_path = assets_dir / folder / f"{i:02d}.png"
+        if not sprite_path.exists():
+            print(f"  Warning: {sprite_path} not found, skipping")
+            sprites.append("")
+            continue
+        sprites.append(convert_png_to_base64(sprite_path))
+    return sprites
+
+
 def build():
-    """Main build function"""
     script_dir = Path(__file__).parent
-    assets_dir = script_dir / "assets" / "tux"  # swap folder name to switch mascot later
+    assets_dir = script_dir / "assets"
     src_dir = script_dir / "src"
     docs_dir = script_dir / "docs"
-
     docs_dir.mkdir(exist_ok=True)
 
-    print("Converting sprites to base64...")
-    sprites_b64 = []
+    print("Converting mascot sprites to base64...")
+    mascot_entries = []
+    for mascot_id, meta in MASCOTS.items():
+        print(f"  Mascot: {meta['name']}")
+        sprites = load_mascot_sprites(assets_dir, meta["folder"])
+        sprites_js = ",\n        ".join(f'"{s}"' if s else '""' for s in sprites)
+        entry = f'''  "{mascot_id}": {{
+    name: "{meta['name']}",
+    spriteSize: {meta['spriteSize']},
+    credit: "{meta['credit']}",
+    sprites: [
+        {sprites_js}
+    ]
+  }}'''
+        mascot_entries.append(entry)
 
-    for i in range(32):
-        sprite_path = assets_dir / f"{i:02d}.png"
-        if not sprite_path.exists():
-            print(f"Warning: {sprite_path.name} not found, skipping")
-            sprites_b64.append("")
-            continue
-
-        print(f"  Converting {sprite_path.name}...")
-        sprites_b64.append(convert_png_to_base64(sprite_path))
-
-    print(f"Converted {len([s for s in sprites_b64 if s])} sprites")
-
-    # --- everything below here is unchanged from the original build.py ---
+    mascots_js = ",\n".join(mascot_entries)
 
     print("Reading JavaScript source...")
     js_source = (src_dir / "main.js").read_text()
@@ -48,7 +75,6 @@ def build():
     lines = js_source.split("\n")
     in_code = False
     code_lines = []
-
     for line in lines:
         stripped = line.strip()
         if stripped.startswith("(function") and "{" in stripped:
@@ -62,12 +88,10 @@ def build():
                 continue
             code_lines.append(line)
 
-    sprites_js = ",\n        ".join(f'"{s}"' if s else '""' for s in sprites_b64)
     code_js = "\n".join(code_lines)
 
-    template = f"""\
-/**
- * Neko.js - Bundled version (Tux edition)
+    template = f'''/**
+ * Neko.js - Bundled version (multi-mascot edition)
  * Based on Neko98 by David Harvey (1998)
  * Original Neko by Masayuki Koba
  * Licensed under GPL v3 (see LICENSE.md)
@@ -76,15 +100,17 @@ def build():
 (function() {{
     "use strict";
 
-    const NEKO_SPRITES = [
-        {sprites_js}
-    ];
+    const MASCOTS = {{
+{mascots_js}
+    }};
 
 {code_js}
 
     window.createNeko = function(options) {{
         const neko = new Neko(options);
-        neko.setSprites(NEKO_SPRITES);
+        neko.mascots = MASCOTS;
+        const initialId = (options && options.mascot) || Object.keys(MASCOTS)[0];
+        neko.setMascot(initialId);
         neko.start();
         return neko;
     }};
@@ -99,14 +125,14 @@ def build():
         }}
     }}
 }})();
-"""
+'''
 
     output_path = docs_dir / "neko.js"
     print(f"Writing to {output_path}...")
     output_path.write_text(template)
 
     size_kb = output_path.stat().st_size / 1024
-    print(f"Done! Output size: {size_kb:.1f} KB")
+    print(f"Done! Output size: {size_kb:.1f} KB (mascots: {', '.join(MASCOTS.keys())})")
 
 
 if __name__ == "__main__":
