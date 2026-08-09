@@ -18,3 +18,5 @@ docs/neko.js
 docs/README.md
 docs/assets/images/neko-awake.ico
 _site/
+
+resize.py
