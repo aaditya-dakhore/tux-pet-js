@@ -62,7 +62,9 @@
       this.speed = options.speed || 24;
       this.behaviorMode = options.behaviorMode || BehaviorMode.CHASE_MOUSE;
       this.idleThreshold = options.idleThreshold || 6; // Original m_dwIdleSpace = 6
-
+      this.awakeTime = options.awakeTime !== undefined ? options.awakeTime : AWAKE_TIME;
+      this.awakeRandomRange = options.awakeRandomRange !== undefined ? options.awakeRandomRange : 20;
+      
       // State
       this.state = NekoState.STOP;
       this.tickCount = 0; // Increments every frame (like m_uTickCount)
@@ -572,10 +574,10 @@
           break;
 
         case NekoState.AWAKE:
-          if (this.stateCount >= AWAKE_TIME + Math.floor(Math.random() * 20)) {
-            this.calcDirection(this.moveDX, this.moveDY);
-          }
-          break;
+        if (this.stateCount >= this.awakeTime + Math.floor(Math.random() * this.awakeRandomRange)) {
+          this.calcDirection(this.moveDX, this.moveDY);
+        }
+        break;
 
         case NekoState.U_MOVE:
         case NekoState.D_MOVE:
