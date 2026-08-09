@@ -1,164 +1,86 @@
-# <img src="nkosrc4/Neko98/Res/Awake.ico" width="32" alt="Neko" class="readme-neko-icon" style="image-rendering: pixelated; image-rendering: -moz-crisp-edges; image-rendering: crisp-edges;"> Neko.js
+# 🐧 Tux & Friends — a Neko.js fork
 
-A JavaScript reimplementation of the classic Neko desktop pet for the web.
+A JavaScript desktop pet that follows your cursor around the page — except instead of a cat, you get to pick from Tux, GNU, Go Gopher, or Ferris the crab.
 
-[Live Demo](https://louisabraham.github.io/nekojs/) | [Usage](#usage) | [Github](https://github.com/louisabraham/nekojs)
+[Live Demo](https://aaditya-dakhore.github.io/tux-pet-js/) | [Usage](#usage) | [GitHub](https://github.com/YOUR_USERNAME/tux-pet-js)
 
 ## About
 
-[Neko](https://en.wikipedia.org/wiki/Neko_(software)) is a classic desktop pet that follows your mouse cursor around the screen. This JavaScript version brings the cat to web pages.
+This is a fork of [Neko.js](https://github.com/louisabraham/nekojs) by Louis Abraham, which is itself a faithful JS reimplementation of the classic [Neko](https://en.wikipedia.org/wiki/Neko_(software)) desktop pet.
 
-It should also be possible to build a browser extension that adds a Neko to all pages and keeps its position consistent across pages. Feel free to submit a pull request or reuse the code in your application!
+I originally found this while wandering and it felt good. The Niko was amazing, so I decided to have Tux as pet and then eventually get the "Tux & Friends".
+<!-- Your turn — a couple sentences on why you built this. What made you want
+Tux and friends instead of the cat? Keep it short and honest, that's what
+makes a README feel real. -->
 
-The original goal of this recreation was to test the capabilities of Claude Code (Sonnet 4.5) and to see how well it could recreate the original Neko98 behavior with just the original source code and a few prompts. I would have called this **NEKOMANCING** (ba-dum-tss!).
-
-While it worked to some extent, some substantial manual improvements were needed to make it actually good. Read more about the creation process [below](#how-this-project-was-made).
-
-The original source code (in the `nkosrc4/` folder) was downloaded from [web.archive.org](https://web.archive.org/web/20050330224958fw_/http://www.angelfire.com/ct/neko/download.html).
-
+Rather than one hardcoded pet, this fork adds a small mascot registry and a settings panel so you can switch between characters live, on the same page, without a reload.
 
 ### Features
 
-- 🎯 **Follows your cursor** - Chases your mouse around the page
-- 💤 **Idle animations** - Falls asleep when you stop moving
-- 🐾 **Faithful recreation** - Matches original Neko98 state machine and behavior
-- 🎨 **Pixel-perfect** - Uses original 32x32 pixel sprites
-- ⚡ **Lightweight** - ~38KB uncompressed with sprites embedded (brotli compressed to ~14KB)
-- 🚀 **Zero dependencies** - Pure vanilla JavaScript
-- 🖱️ **Interactive** - Click to change behavior modes
+- 🎯 **Follows your cursor** — same chase/idle/sleep behavior as the original Neko
+- 🔀 **Switchable mascots** — pick Tux, GNU, Go Gopher, or Ferris from an in-page dropdown
+- 🎨 **Pixel-art sprites**, generated with [PixelLab](https://www.pixellab.ai/) and hand-checked for consistency
+- ⚙️ **Adjustable speed** — a slider in the same settings panel
+- 🚀 **Zero dependencies** — pure vanilla JavaScript, sprites bundled as base64 so it's a single-file include
+- 🖱️ **Interactive** — click to cycle behavior modes, just like the original
 
 ## Usage
 
 Add to your HTML:
 
 ```html
-<script src="https://louisabraham.github.io/nekojs/neko.js" data-autostart></script>
+<script src="https://aaditya-dakhore.github.io/tux-pet-js/neko.js" data-autostart></script>
 ```
 
 Or with custom options:
 
 ```javascript
 const neko = createNeko({
+  mascot: "tux",             // "tux" | "gnu" | "gopher" | "ferris" (default: first registered)
   speed: 24,                 // Pixels per logic tick (default: 24, 5 ticks/sec)
   fps: 120,                  // Render frame rate (default: 120)
   behaviorMode: 0,           // 0=chase, 1=run away, 2=random, 3=pace, 4=ball chase
   idleThreshold: 6,          // Distance to consider idle (default: 6)
   allowBehaviorChange: true, // Click to cycle behaviors (default: true)
-  startX: 0,                 // Initial X position (default: 0)
-  startY: 0                  // Initial Y position (default: 0)
+  awakeTime: 3,              // Ticks before waking from idle (default: 3)
+  awakeRandomRange: 20,      // Extra random ticks added to awakeTime (default: 20)
+  controls: true,            // Show the mascot/speed picker panel (default: true)
+  startX: 0,
+  startY: 0
 });
 
+neko.setMascot("gnu");       // switch mascot at any time
 neko.start();
 neko.stop();
 neko.destroy();
 ```
 
-To _build_ (actually just package the sprites), run `python3 build.py` (requires Pillow).
+To build (bundles the sprites into `docs/neko.js`), run `python3 build.py` — no dependencies needed, it just reads the PNGs and base64-encodes them.
 
-## How this project was made
+### Adding a new mascot
 
-This project was originally created through AI-assisted "vibe coding" with Claude, then refined with manual improvements.
+1. Generate/collect 32 sprites (see `build.py`'s frame-index mapping) and drop them numbered `00.png`–`31.png` into `assets/<mascot-id>/`.
+2. Add an entry to the `MASCOTS` dict at the top of `build.py` with a `name`, `spriteSize`, and `credit`.
+3. Rebuild with `python3 build.py`.
 
-### Initial AI generation
+## Mascots & credits
 
-The first version was generated by Claude Sonnet 4 from the original Neko98 C++ source code using four prompts:
+| Mascot | Character credit | License |
+|---|---|---|
+| Tux | Larry Ewing | Free to use/modify with attribution |
+| GNU | The GNU Project / FSF | GNU Project mascot guidelines |
+| Go Gopher | Renée French | CC BY 4.0 |
+| Ferris | Karen Rustad Tölva | CC0 (public domain) |
 
-<details>
-<summary><strong>Prompt 1: Initial Implementation</strong></summary>
+All sprite art in this fork was pixel-art-generated with [PixelLab](https://www.pixellab.ai/) based on each character's official design, not traced or copied from existing sprite sheets.
 
-```
-I want to build a modern web version of neko.
-
-I put the original implementation of neko in @nkosrc4/
-
-Start by exploring the codebase and fully document what it does, then reimplement as much as possible in js.
-
-Implement a simple JS version. Avoid using any external libraries except if absolutely necessary. If there is a build step (probably mostly for minification), use a simple one.
-
-Use the orignal sprites from @nkosrc4/Neko98/Res/, add them to the build so that in the end one can just include a single js file that loads very fast (maybe it does network requests but it should be very fast). Maybe you can bundle or compress the sprites to make loading faster.
-
-I will serve the repository using github pages in a docs/ folder. The build process should output a single docs/neko.js file.
-
-Create a README.md file and a pretty looking docs/index.html to present the project. Properly credit the original code downloaded from https://web.archive.org/web/20050330224958fw_/http://www.angelfire.com/ct/neko/download.html. Include installation instructions in both.
-
-Create a simple LICENSE.md file that respects the original license of the code and credits the original author. If you can, put a modern GPL license on the JS code.
-
-Finally, the README.md and the index.html should include the fact that the code was produced fully by this prompt (after downloading and uncompressing nkosrc4 and converting some documentation `classes.doc` to `classes.txt`). Include the prompt verbatim.
-
-You should use git and commit regularly. Don't commit the original source.
-```
-
-</details>
-
-<details>
-<summary><strong>Prompt 2: Bug Fix (Sprite Mapping)</strong></summary>
-
-After the initial implementation, diagonal movements showed incorrect sprites. Two screenshots were provided showing the bug:
-
-```
-There is a bug in the movement handling, it is supposed to go up left in the first
-image and down left in the second. Think to identify the source of the bug and check
-the logic of all sprite indexing.
-```
-
-</details>
-
-<details>
-<summary><strong>Prompt 3: Documentation Update</strong></summary>
-
-```
-Finally update README.md and index.html to document the previous error and the
-prompt that fixed it (explain that I pasted two screenshots), and also include
-the current prompt. I want people to know everything about the creation process
-so include every prompt in the docs. Also mention which model was used (claude 4.5).
-This is the reported usage, report only the important stats on the webpage (even
-if this prompt will be included fully)
-
-Total cost: $1.42 Total duration (API): 9m 34s Total duration (wall): 20m 34s
-Total code changes: 1442 lines added, 37 lines removed Usage by model:
-claude-haiku: 30.9k input, 5.6k output, 179.8k cache read, 41.0k cache write ($0.1279)
-claude-opus-4-5: 901 input, 109 output, 0 cache read, 0 cache write ($0.0072)
-claude-sonnet: 146 input, 24.5k output, 1.8m cache read, 100.2k cache write ($1.28)
-```
-
-</details>
-
-<details>
-<summary><strong>Prompt 4: GitHub Integration</strong></summary>
-
-```
-I have now configured the github remote. Update the links where suitable. Don't
-forget to update README.md and index.html to include this prompt. Mention that
-just before this, the total cost was
-
-Total cost: $2.07 Total duration (API): 11m 27s Total duration (wall): 26m 49s
-Total code changes: 1554 lines added, 51 lines removed Usage by model:
-claude-haiku: 32.1k input, 5.7k output, 179.8k cache read, 41.0k cache write ($0.1297)
-claude-opus-4-5: 901 input, 109 output, 0 cache read, 0 cache write ($0.0072)
-claude-sonnet: 174 input, 29.0k output, 2.8m cache read, 171.8k cache write ($1.94)
-
-mostly because the conversation is getting long and I didn't compact it at all.
-I'm also using the most expensive Claude Opus 4.5 model.
-
-Commit and push your changes.
-```
-
-</details>
-
-### Manual improvements
-
-The plan was to try to let the AI fully implement the project, but it was not able to do so.
-
-After the initial AI generation, significant work with a human in the loop (aka me) was done to fix bugs and add features:
-
-- **Rewrote movement system** - Complete rewrite for more realistic movement matching the original C++ implementation for state changes and animation timing while allowing for smooth movement at higher FPS.
-- **Fixed wall clawing bug** - Movement deltas were floating-point causing direction flickering that reset state counters; converted to integers like original C++
-- **Fixed boundary detection to exclude scrollbars**
-- **Added click-to-change behavior** - Click on Neko to cycle through all 5 behavior modes
-- **Fixed click detection** - Changed from `click` to `mousedown` event so clicks register even when cat is moving
+This project builds on:
+- [Neko.js](https://github.com/louisabraham/nekojs) by Louis Abraham — the JS engine, state machine, and movement logic this fork is built on top of
+- The original [Neko98](https://web.archive.org/web/20050330224958fw_/http://www.angelfire.com/ct/neko/download.html) C++ implementation by David Harvey (1998)
+- The original [Neko](https://en.wikipedia.org/wiki/Neko_(software)) concept by Masayuki Koba
 
 ## License
 
-This JavaScript implementation is licensed under **GNU General Public License v3.0**, respecting the original Neko license.
+The code is licensed under **GNU General Public License v3.0**, same as upstream Neko.js — see [LICENSE.md](LICENSE.md).
 
-See [LICENSE.md](LICENSE.md) for full details.
+Sprite artwork follows each mascot's own license, listed in the table above — not GPL.
