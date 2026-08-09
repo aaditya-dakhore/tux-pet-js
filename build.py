@@ -19,8 +19,20 @@ MASCOTS = {
     "gnu": {
         "name": "GNU",
         "folder": "gnu",
-        "spriteSize": 56,  # <-- confirm this matches your actual GNU PNG size before running
+        "spriteSize": 56,
         "credit": "GNU mascot (FSF/GNU Project), sprites generated with PixelLab",
+    },
+    "gopher": {
+        "name": "Go Gopher",
+        "folder": "gopher",
+        "spriteSize": 56,
+        "credit": "Go gopher by Renée French, CC BY 4.0, sprites generated with PixelLab",
+    },
+    "ferris": {
+        "name": "Ferris",
+        "folder": "ferris",
+        "spriteSize": 56,
+        "credit": "Ferris by Karen Rustad Tölva, CC0, sprites generated with PixelLab",
     },
 }
 
