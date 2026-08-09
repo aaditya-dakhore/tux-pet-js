@@ -51,7 +51,7 @@
   const CLAW_TIME = 10;
 
   // Sprite size
-  const SPRITE_SIZE = 56;
+  let SPRITE_SIZE = 56;
 
   class Neko {
     constructor(options = {}) {
@@ -274,6 +274,27 @@
       if (img && this.spriteImages[frameIndex]) {
         img.src = this.spriteImages[frameIndex];
       }
+    }
+
+    setMascot(id) {
+      const mascot = this.mascots && this.mascots[id];
+      if (!mascot) {
+        console.warn(`Neko: unknown mascot "${id}"`);
+        return;
+      }
+
+      SPRITE_SIZE = mascot.spriteSize;
+      this.currentMascotId = id;
+
+      if (this.element) {
+        this.element.style.width = `${SPRITE_SIZE}px`;
+        this.element.style.height = `${SPRITE_SIZE}px`;
+      }
+
+      this.boundsWidth = document.documentElement.clientWidth - SPRITE_SIZE;
+      this.boundsHeight = window.innerHeight - SPRITE_SIZE;
+
+      this.setSprites(mascot.sprites);
     }
 
     updatePosition() {
