@@ -111,6 +111,9 @@ def build():
         neko.mascots = MASCOTS;
         const initialId = (options && options.mascot) || Object.keys(MASCOTS)[0];
         neko.setMascot(initialId);
+        if (!options || options.controls !== false) {{
+            neko.createControls();
+        }}
         neko.start();
         return neko;
     }};

@@ -297,6 +297,151 @@
       this.setSprites(mascot.sprites);
     }
 
+    createControls() {
+      const style = document.createElement("style");
+      style.textContent = `
+        .neko-controls-cursor {
+          display: block;
+          width: 8px;
+          height: 14px;
+          background: #ffb000;
+          animation: neko-blink 1s steps(1) infinite;
+        }
+        @keyframes neko-blink {
+          0%, 50% { opacity: 1; }
+          50.01%, 100% { opacity: 0; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .neko-controls-cursor { animation: none; opacity: 1; }
+        }
+        .neko-controls-panel {
+          display: none;
+          flex-direction: column;
+          gap: 10px;
+          position: absolute;
+          bottom: 36px;
+          right: 0;
+          width: 200px;
+          background: #1c1917;
+          border: 2px solid #44403c;
+          box-shadow: 3px 3px 0 #000;
+          padding: 12px;
+        }
+        .neko-controls-panel.open { display: flex; }
+        .neko-controls-row { display: flex; flex-direction: column; gap: 4px; }
+        .neko-controls-label {
+          color: #a8a29e;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          font-size: 10px;
+        }
+        .neko-mascot-option {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 4px 6px;
+          background: transparent;
+          border: 1px solid transparent;
+          color: #e7e5e4;
+          cursor: pointer;
+          text-align: left;
+          width: 100%;
+          font-family: inherit;
+          font-size: 12px;
+        }
+        .neko-mascot-option:hover, .neko-mascot-option.active {
+          border-color: #ffb000;
+          background: #292524;
+        }
+        .neko-mascot-option img {
+          width: 20px;
+          height: 20px;
+          image-rendering: pixelated;
+        }
+        .neko-speed-slider { width: 100%; accent-color: #ffb000; }
+      `;
+      document.head.appendChild(style);
+
+      const panel = document.createElement("div");
+      panel.style.cssText = `
+        position: fixed;
+        bottom: 16px;
+        right: 16px;
+        z-index: 999998;
+        font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+        user-select: none;
+      `;
+
+      const toggle = document.createElement("button");
+      toggle.setAttribute("aria-label", "Desktop pet settings");
+      toggle.innerHTML = `<span class="neko-controls-cursor"></span>`;
+      toggle.style.cssText = `
+        width: 28px;
+        height: 28px;
+        background: #1c1917;
+        border: 2px solid #44403c;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        box-shadow: 2px 2px 0 #000;
+      `;
+
+      const dropdown = document.createElement("div");
+      dropdown.className = "neko-controls-panel";
+
+      const mascotRow = document.createElement("div");
+      mascotRow.className = "neko-controls-row";
+      const mascotLabel = document.createElement("span");
+      mascotLabel.className = "neko-controls-label";
+      mascotLabel.textContent = "Mascot";
+      mascotRow.appendChild(mascotLabel);
+
+      Object.keys(this.mascots).forEach((id) => {
+        const mascot = this.mascots[id];
+        const opt = document.createElement("button");
+        opt.className = "neko-mascot-option" + (id === this.currentMascotId ? " active" : "");
+        opt.innerHTML = `<img src="${mascot.sprites[0]}" alt=""><span>${mascot.name}</span>`;
+        opt.addEventListener("click", () => {
+          this.setMascot(id);
+          dropdown.querySelectorAll(".neko-mascot-option").forEach((el) => el.classList.remove("active"));
+          opt.classList.add("active");
+        });
+        mascotRow.appendChild(opt);
+      });
+      dropdown.appendChild(mascotRow);
+
+      const speedRow = document.createElement("div");
+      speedRow.className = "neko-controls-row";
+      const speedLabel = document.createElement("span");
+      speedLabel.className = "neko-controls-label";
+      speedLabel.textContent = "Speed";
+      const speedSlider = document.createElement("input");
+      speedSlider.type = "range";
+      speedSlider.className = "neko-speed-slider";
+      speedSlider.min = "8";
+      speedSlider.max = "48";
+      speedSlider.step = "4";
+      speedSlider.value = String(this.speed);
+      speedSlider.addEventListener("input", (e) => {
+        this.speed = Number(e.target.value);
+      });
+      speedRow.appendChild(speedLabel);
+      speedRow.appendChild(speedSlider);
+      dropdown.appendChild(speedRow);
+
+      toggle.addEventListener("click", (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle("open");
+      });
+      document.addEventListener("click", () => dropdown.classList.remove("open"));
+
+      panel.appendChild(dropdown);
+      panel.appendChild(toggle);
+      document.body.appendChild(panel);
+    }
+
     updatePosition() {
       this.element.style.left = Math.round(this.x) + "px";
       this.element.style.top = Math.round(this.y) + "px";
