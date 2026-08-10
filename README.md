@@ -2,7 +2,7 @@
 
 A JavaScript desktop pet that follows your cursor around the page — except instead of a cat, you get to pick from Tux, GNU, Go Gopher, or Ferris the crab.
 
-[Live Demo](https://aaditya-dakhore.github.io/tux-pet-js/) | [Usage](#usage) | [GitHub](https://github.com/YOUR_USERNAME/tux-pet-js)
+[Live Demo](https://aaditya-dakhore.github.io/tux-pet-js/) | [Usage](#usage) | [GitHub](https://github.com/aaditya-dakhore/tux-pet-js)
 
 ## About
 
